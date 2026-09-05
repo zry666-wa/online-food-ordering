@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.food.dao.DishMapper">
+
+    <resultMap id="dishMap" type="Dish">
+        <id property="id" column="id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="status" column="status"/>
+        <result property="sales" column="sales"/>
+        <result property="createTime" column="create_time"/>
+        <result property="shopName" column="shop_name"/>
+        <result property="categoryName" column="category_name"/>
+    </resultMap>
+
+    <sql id="baseSelect">
+        SELECT d.*, m.shop_name, c.name AS category_name
+        FROM t_dish d
+        LEFT JOIN t_merchant m ON d.merchant_id = m.id
+        LEFT JOIN t_category c ON d.category_id = c.id
+    </sql>
+
+    <select id="findById" resultMap="dishMap">
+        <include refid="baseSelect"/>
+        WHERE d.id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="dishMap">
+        <include refid="baseSelect"/>
+        <where>
+            <if test="categoryId != null">AND d.category_id = #{categoryId}</if>
+            <if test="merchantId != null">AND d.merchant_id = #{merchantId}</if>
+            <if test="status != null">AND d.status = #{status}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (d.name LIKE CONCAT('%',#{keyword},'%') OR m.shop_name LIKE CONCAT('%',#{keyword},'%') OR d.description LIKE CONCAT('%',#{keyword},'%'))
+            </if>
+        </where>
+        ORDER BY d.sales DESC, d.id
+    </select>
+
+    <insert id="insert" parameterType="Dish" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_dish (merchant_id, category_id, name, description, price, image, status, sales)
+        VALUES (#{merchantId}, #{categoryId}, #{name}, #{description}, #{price}, #{image}, #{status}, 0)
+    </insert>
+
+    <update id="update" parameterType="Dish">
+        UPDATE t_dish
+        <set>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_dish SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM t_dish WHERE id = #{id}
+    </delete>
+
+    <update id="addSales">
+        UPDATE t_dish SET sales = sales + #{num} WHERE id = #{id}
+    </update>
+
+    <select id="countByMerchant" resultType="long">
+        SELECT COUNT(*) FROM t_dish WHERE merchant_id = #{merchantId}
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM t_dish
+    </select>
+</mapper>

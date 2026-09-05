@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.food.dao.ReviewMapper">
+
+    <resultMap id="reviewMap" type="Review">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="dishId" column="dish_id"/>
+        <result property="rating" column="rating"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="username" column="username"/>
+        <result property="dishName" column="dish_name"/>
+    </resultMap>
+
+    <select id="findByDishId" resultMap="reviewMap">
+        SELECT r.*, u.username FROM t_review r
+        LEFT JOIN t_user u ON r.user_id = u.id
+        WHERE r.dish_id = #{dishId} ORDER BY r.id DESC
+    </select>
+
+    <select id="findByMerchantId" resultMap="reviewMap">
+        SELECT r.*, u.username, d.name AS dish_name FROM t_review r
+        LEFT JOIN t_user u ON r.user_id = u.id
+        LEFT JOIN t_dish d ON r.dish_id = d.id
+        WHERE r.merchant_id = #{merchantId} ORDER BY r.id DESC
+    </select>
+
+    <select id="findAll" resultMap="reviewMap">
+        SELECT r.*, u.username, d.name AS dish_name FROM t_review r
+        LEFT JOIN t_user u ON r.user_id = u.id
+        LEFT JOIN t_dish d ON r.dish_id = d.id
+        ORDER BY r.id DESC
+    </select>
+
+    <select id="findByOrderAndDish" resultMap="reviewMap">
+        SELECT * FROM t_review WHERE order_id = #{orderId} AND dish_id = #{dishId}
+    </select>
+
+    <insert id="insert" parameterType="Review" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_review (order_id, user_id, merchant_id, dish_id, rating, content)
+        VALUES (#{orderId}, #{userId}, #{merchantId}, #{dishId}, #{rating}, #{content})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM t_review WHERE id = #{id}
+    </delete>
+
+    <select id="avgRatingByDish" resultType="double">
+        SELECT IFNULL(AVG(rating), 0) FROM t_review WHERE dish_id = #{dishId}
+    </select>
+
+    <select id="avgRatingByMerchant" resultType="double">
+        SELECT IFNULL(AVG(rating), 0) FROM t_review WHERE merchant_id = #{merchantId}
+    </select>
+</mapper>
