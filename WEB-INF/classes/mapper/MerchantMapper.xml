@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.food.dao.MerchantMapper">
+
+    <resultMap id="merchantMap" type="Merchant">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="shopName" column="shop_name"/>
+        <result property="shopDesc" column="shop_desc"/>
+        <result property="address" column="address"/>
+        <result property="licenseNo" column="license_no"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="username" column="username"/>
+        <result property="phone" column="phone"/>
+    </resultMap>
+
+    <select id="findById" resultMap="merchantMap">
+        SELECT m.*, u.username, u.phone FROM t_merchant m
+        LEFT JOIN t_user u ON m.user_id = u.id
+        WHERE m.id = #{id}
+    </select>
+
+    <select id="findByUserId" resultMap="merchantMap">
+        SELECT m.*, u.username, u.phone FROM t_merchant m
+        LEFT JOIN t_user u ON m.user_id = u.id
+        WHERE m.user_id = #{userId}
+    </select>
+
+    <select id="findAll" resultMap="merchantMap">
+        SELECT m.*, u.username, u.phone FROM t_merchant m
+        LEFT JOIN t_user u ON m.user_id = u.id
+        <where>
+            <if test="status != null">AND m.status = #{status}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (m.shop_name LIKE CONCAT('%',#{keyword},'%') OR u.username LIKE CONCAT('%',#{keyword},'%'))
+            </if>
+        </where>
+        ORDER BY m.id
+    </select>
+
+    <insert id="insert" parameterType="Merchant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_merchant (user_id, shop_name, shop_desc, address, license_no, status)
+        VALUES (#{userId}, #{shopName}, #{shopDesc}, #{address}, #{licenseNo}, 0)
+    </insert>
+
+    <update id="update" parameterType="Merchant">
+        UPDATE t_merchant
+        <set>
+            <if test="shopName != null">shop_name = #{shopName},</if>
+            <if test="shopDesc != null">shop_desc = #{shopDesc},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="licenseNo != null">license_no = #{licenseNo},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_merchant SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM t_merchant WHERE id = #{id}
+    </delete>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_merchant
+    </select>
+</mapper>

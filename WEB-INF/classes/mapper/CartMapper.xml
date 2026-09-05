@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.food.dao.CartMapper">
+
+    <resultMap id="cartMap" type="CartItem">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="dishId" column="dish_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="addTime" column="add_time"/>
+        <result property="dishName" column="dish_name"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="shopName" column="shop_name"/>
+    </resultMap>
+
+    <select id="findByUserId" resultMap="cartMap">
+        SELECT c.*, d.name AS dish_name, d.price, d.image, d.merchant_id, m.shop_name
+        FROM t_cart c
+        JOIN t_dish d ON c.dish_id = d.id
+        JOIN t_merchant m ON d.merchant_id = m.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.id DESC
+    </select>
+
+    <select id="findByUserAndDish" resultMap="cartMap">
+        SELECT * FROM t_cart WHERE user_id = #{userId} AND dish_id = #{dishId}
+    </select>
+
+    <insert id="insert" parameterType="CartItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_cart (user_id, dish_id, quantity) VALUES (#{userId}, #{dishId}, #{quantity})
+    </insert>
+
+    <update id="updateQuantity">
+        UPDATE t_cart SET quantity = #{quantity} WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM t_cart WHERE id = #{id}
+    </delete>
+
+    <delete id="clear">
+        DELETE FROM t_cart WHERE user_id = #{userId}
+    </delete>
+
+    <select id="countByUserId" resultType="long">
+        SELECT COUNT(*) FROM t_cart WHERE user_id = #{userId}
+    </select>
+</mapper>
