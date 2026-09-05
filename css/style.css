@@ -1,0 +1,31 @@
+/* 网上订餐系统 全局样式 */
+body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+
+.dish-card { transition: transform .15s ease, box-shadow .15s ease; }
+.dish-card:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); }
+.dish-card .card-img-top { height: 180px; object-fit: cover; }
+
+.card { border-radius: .75rem; }
+.btn { border-radius: .5rem; }
+
+.table thead th { background: #f8f9fa; }
+
+.navbar { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+
+.hero-banner {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 100%);
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    color: #fff;
+}
+
+.status-badge { font-size: .8rem; }
+
+.sidebar {
+    border-radius: .75rem;
+    overflow: hidden;
+}
+.sidebar .list-group-item.active {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
